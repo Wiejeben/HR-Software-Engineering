@@ -1,0 +1,199 @@
+// Example 1: Introducing S while our problem should be focust on N
+let n : number = 5;
+let s : string = "";
+
+while (n > 0) {
+    s = s + "*";
+    n = n - 1;
+}
+
+// console.log(s);
+
+// Example 2: Data races
+class Int {
+    value : number = 0;
+
+    public incr() : void {
+        this.value = this.value + 1;
+    }
+
+    public decr() : void {
+        this.value = this.value - 1;
+    }
+}
+
+class EventCounter {
+    i : Int;
+
+    constructor() {
+        this.i = new Int;
+    }
+
+    public tick() : void {
+        this.i.incr();
+        this.i.incr();
+    }
+}
+
+class RegularCounter {
+    i : Int;
+
+    constructor() {
+        this.i = new Int;
+    }
+
+    public tick() : void {
+        this.i.incr();
+    }
+}
+
+const ec = new EventCounter();
+const rc = new RegularCounter();
+
+ec.i = rc.i; // we now use the same Int object
+
+ec.tick();
+rc.tick();
+
+// Which can lead to some unexpected results
+// console.log(ec.i.value); // Output: 3
+// console.log(rc.i.value); // Output: 3
+
+
+// Example 3: Writing structures can take up a lot of lines and is very verbose.
+class Person {
+    private name: string;
+    private surname: string;
+    private birthDate: Date;
+
+    constructor(name: string, surname: string, birthDate: Date) {
+        this.name = name;
+        this.surname = surname;
+        this.birthDate = birthDate;
+    }
+}
+
+const p = new Person("James", "Semaj", new Date(2001, 1, 1));
+
+// Solution: Wrapper
+// Simple wrapper
+// type Fun<a,b> = { f: (i: a) => b }
+// let Fun = function<a,b>(f: (_: a) => b): Fun<a,b> { return { f: f } }
+
+type Fun<a,b> = { f: (i: a) => b, then: <c>(g: Fun<b,c>) => Fun<a,c> }
+let Fun = <a,b>(f: (_: a) => b): Fun<a,b> => {
+    return {
+        f: f,
+        then: function<c>(this: Fun<a,b>, g: Fun<b,c>): Fun<a,c> {
+            return then(this, g)
+        }
+    }
+}
+
+const then = <a,b,c>(f: Fun<a,b>, g: Fun<b,c>): Fun<a,c> => Fun<a,c>(a => g.f(f.f(a)))
+
+const incr = Fun<number, number>(x => x + 1)
+const double = Fun<number, number>(x => x * 2)
+const decr = Fun<number, number>(x => x - 1)
+const negate = Fun<boolean, boolean>(x => !x)
+const is_even = Fun<number, boolean>(x => x % 2 == 0)
+const is_odd = Fun<number, boolean>(x => x % 2 !== 0)
+const convert = Fun<number, string>(x => String(x))
+const square = Fun<number, number>(x => x * x)
+const is_positive = Fun<number, boolean>((x: number) => x > 0)
+const square_root = Fun<number, number>((x: number) => Math.sqrt(x))
+const invert = Fun<number, number>((x: number) => -x)
+
+const incr_twice = incr.then(incr)
+const double_twice = double.then(double)
+const incr_then_double = incr.then(double)
+
+let ifThenElse = <a, b>(p: Fun<a, boolean>, _then: Fun<a, b>, _else: Fun<a, b>) => {
+    return Fun((x: a) => {
+        if (p.f(x)) {
+            return _then.f(x)
+        } else {
+            return _else.f(x)
+        }
+    })
+}
+
+const id = <a>(): Fun<a,a> => Fun<a,a>(x => x)
+
+// console.log(incr_twice.f(3))
+// console.log(id().then(double_twice))
+
+var test = id<number>()
+    .then(incr)
+    .then(is_positive)
+
+var test2 = id<number>()
+    .then(incr)
+    .then(double)
+    .then(is_positive)
+
+var test3 = id<number>()
+    .then(incr)
+    .then(double)
+    .then(is_positive)
+
+var test4 = ifThenElse(is_positive, square_root, invert.then(square_root))
+
+var test5 = ifThenElse(is_even, invert, square_root)
+
+const f = id<number>()
+    .then(incr.then(double))
+    .then(double)
+    .then(decr)
+    .then(decr)
+    .then(double)
+    .then(incr)
+
+// console.log(f.then(incr).then(id()).f(4))
+
+/*
+let repeat = function<a>(f: Fun<a, a>, n: number): Fun<a, a> {
+    if (n <= 0) {
+        return f
+    } else {
+       repeat(f, decr.f(n))
+    }
+}
+  
+Fun = function <a, b>(f: (_: a) => b): Fun<a, b> {
+    return {
+        f: f,
+        then: function <c>(this: Fun<a, b>, g: Fun<b, c>): Fun<a, c> {
+            return Fun<a, c>(a => g.f(this.f(a)))
+        },
+        repeat: function(this: Fun<a, a>): Fun<number,Fun<a, a>> {
+            return Fun<number,Fun<a, a>>(a => repeat(g, a))
+        }
+    }
+}
+*/
+
+/*
+let repeatUntil = function<a>(f: Fun<a, a>, predicate: Fun<a, boolean>) : Fun<a, a> {
+  let g =
+    (x: a) => {
+      if (predicate.f(x)) {
+        //COMPLETE
+      }
+      else {
+        //COMPLETE
+      }
+    }
+  return //COMPLETE
+}
+
+repeatUntil: function(this: Fun<a, a>): Fun<Fun<a, boolean>, Fun<a, a>> {
+  return {
+    f: f,
+    then: function <c>(this: Fun<a, b>, g: Fun<b, c>): Fun<a, c> {
+      return Fun<a, c>(a => g.f(this.f(a)))},
+    repeatUntil: function(this: Fun<a, a>): Fun<(_: a) => boolean, Fun<a, a>> {
+      //COMPLETE
+    }
+  }
+}*/
