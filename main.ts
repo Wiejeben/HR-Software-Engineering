@@ -96,6 +96,7 @@ let map_Either = <a0, a1, b0, b1>(f: Fun<a0, a1>, g: Fun<b0, b1>): Fun<Either<a0
 
 let id_Either = <a, b>(): Fun<Either<a, b>, Either<a, b>> => map_Either(id<a>(), id<b>())
 
+// We implement a join for both left and right, however normally only one side is used to allow joining.
 let join_left_Either = <a, b>(): Fun<Either<Either<a, b>, b>, Either<a, b>> => Fun(x => x.kind == 'left' ? x.value : x)
 let join_right_Either = <a, b>(): Fun<Either<a, Either<a, b>>, Either<a, b>> => Fun(x => x.kind == 'left' ? x : x.value)
 
