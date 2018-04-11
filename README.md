@@ -38,6 +38,40 @@ Examples:
 - Identity (bind is simply function composition!)
 - Pair (left and right)
 
+We now move on to more and more advanced monads which are quite useful in practice.
+
+## Sum(s)
+Concept: safe representation of a happy-flow and an error flow  
+Sum (left and right)  
+Option  
+Exception  
+Examples:
+- Optional in Java
+- Maybe in Haskell
+- Optional in C++
+
+## State
+Concept: arbitrating state-management, own DSL  
+Example:
+- Mini-language
+
+## Combining monads: parser
+Concept: different monads can be composed together in order to form a larger monad  
+The larger monad is still a monad!
+
+
+Let us show that parser is the combination of state and option/exception
+Example:
+- Parser for the mini-language from the State
+- Mini-language with exceptions
+
+## Coroutines
+Concept: modelling domain-specific concurrency in a concurrency-unsafe host-language
+Examples:
+- Promises
+- TPL
+- Mini-language with exceptions and breakpoints
+
 # Definitions
 - **data race/race condition**: async operation where te sequence of execution preduces a different outcome.
 - **composition**: given two entities of the same sort, we can compose them into a new one.
