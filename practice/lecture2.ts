@@ -26,8 +26,10 @@ let Unit: Unit = {}
 
 type List<a> = { kind: 'Cons', head: a, tail: List<a> } | { kind: 'Empty' }
 
-let empty = <a>() => Fun<Unit, List<a>>(_ => ({ kind: 'Empty' }))
-let cons = <a>() => Fun<a, List<a>>(x => ({ kind: 'Cons', head: x, tail: empty<a>().f(Unit) }))
+let empty = <a>(): Fun<Unit, List<a>> => Fun<Unit, List<a>>(_ => ({ kind: 'Empty' }))
+let cons = <a>(): Fun<a, List<a>> => Fun<a, List<a>>(x => ({ kind: 'Cons', head: x, tail: empty<a>().f(Unit) }))
+
+let unit_List = <a>(): Fun<a, List<a>> => cons<a>()
 
 let map_List = <a, b>(f: Fun<a, b>): Fun<List<a>, List<b>> => Fun(x => {
     if (x.kind == 'Empty') {

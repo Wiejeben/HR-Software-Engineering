@@ -95,7 +95,7 @@ let unit_Option = <a>(): Fun<a, Option<a>> => Fun(x => some<a>().f(x))
 let join_Option = <a>(): Fun<Option<Option<a>>, Option<a>> => Fun(o => o.kind == 'none' ? none<a>().f(Unit) : o.value)
 let bind_Option = <a, b>(x: Option<a>, k: (_: a) => Option<b>): Option<b> => map_Option<a, Option<b>>(Fun(k)).then(join_Option<b>()).f(x)
 
-// Kleisli composition
+// TODO: Kleisli composition
 let then_Option = <a, b, c>(f: Fun<a, Option<b>>, g: Fun<b, Option<c>>): Fun<a, Option<c>> => f.then(map_Option<b, Option<c>>(g)).then(join_Option<c>())
 
 // console.log(some<number>().then(map_Option<number, number>(incr)).f(10)) // output: { kind: 'some', value: 11, then: [Function: then] }
