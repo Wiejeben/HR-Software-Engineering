@@ -1,3 +1,5 @@
+export {} // allow each file to work independently
+
 // Function wrapper
 type Fun<a, b> = { f: (_: a) => b, then: <c>(g: Fun<b, c>) => Fun<a, c> }
 

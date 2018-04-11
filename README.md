@@ -75,6 +75,7 @@ Examples:
 # Definitions
 - **data race/race condition**: async operation where te sequence of execution preduces a different outcome.
 - **composition**: given two entities of the same sort, we can compose them into a new one.
+- **neutral element of composition**: example; it behaves similarly to 0 with respect to addition.
 - **identity function**: when given a parameter, simply returns it right away without modification.
 - **referential transparency/determinism**: ensures that a function will always behave the exact same way when called with the same parameters.
 - **preservation of identity**: ?
