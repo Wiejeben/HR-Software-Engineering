@@ -1,18 +1,38 @@
 export {} // allow each file to work independently
 
 // Function wrapper
-type Fun<a, b> = { f: (_: a) => b, then: <c>(g: Fun<b, c>) => Fun<a, c> }
+type Fun<a, b> = {
+    f: (_: a) => b,
+    then: <c>(g: Fun<b, c>) => Fun<a, c>,
+    repeat: () => Fun<number, Fun<a, a>>,
+    repeatUntil: () => Fun<Fun<a, boolean>, Fun<a, a>>
+}
 
 // Create a function wrapper
 let Fun = <a, b>(f: (_: a) => b): Fun<a, b> => ({
     f: f,
     then: function <c>(this: Fun<a, b>, g: Fun<b, c>): Fun<a, c> {
         return then(this, g)
+    },
+    repeat: function (this: Fun<a, a>): Fun<number, Fun<a, a>> {
+        return Fun(x => repeat(this, x))
+    },
+    repeatUntil: function (this: Fun<a, a>): Fun<Fun<a, boolean>, Fun<a, a>> {
+        return Fun(x => repeatUntil(this, x))
     }
 })
 
 // Make chaining of the function wrapper possible
 let then = <a, b, c>(f: Fun<a, b>, g: Fun<b, c>): Fun<a, c> => Fun(a => g.f(f.f(a)))
+
+// Implement loop by number
+let repeat = <a>(f: Fun<a, a>, n: number): Fun<a, a> => (n <= 0) ? f : f.then(repeat(f, decr.f(n)))
+
+// Implement loop by function
+let repeatUntil = <a>(f: Fun<a, a>, predicate: Fun<a, boolean>): Fun<a, a> => {
+    let g = (x: a): a => predicate.f(x) ? x : g(f.f(x))
+    return Fun(x => g(x))
+}
 
 // Defining funtions that use this wrapper
 let incr: Fun<number, number> = Fun(x => x + 1)

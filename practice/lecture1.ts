@@ -27,7 +27,7 @@ let then = <a, b, c>(f: Fun<a, b>, g: Fun<b, c>): Fun<a, c> => Fun(a => g.f(f.f(
 
 let repeat = <a>(f: Fun<a, a>, n: number): Fun<a, a> => (n <= 0) ? f : f.then(repeat(f, decr.f(n)))
 
-let repeatUntil = function <a>(f: Fun<a, a>, predicate: Fun<a, boolean>): Fun<a, a> {
+let repeatUntil = <a>(f: Fun<a, a>, predicate: Fun<a, boolean>): Fun<a, a> => {
     let g = (x: a): a => predicate.f(x) ? x : g(f.f(x))
     return Fun(x => g(x))
 }
