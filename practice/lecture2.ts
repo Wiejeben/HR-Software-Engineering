@@ -29,18 +29,19 @@ type List<a> = { kind: 'Cons', head: a, tail: List<a> } | { kind: 'Empty' }
 let empty = <a>() => Fun<Unit, List<a>>(_ => ({ kind: 'Empty' }))
 let cons = <a>() => Fun<a, List<a>>(x => ({ kind: 'Cons', head: x, tail: empty<a>().f(Unit) }))
 
-let map_List = <a, b>(f: Fun<a, b>): Fun<List<a>, List<b>> => Fun<List<a>, List<b>>(x => {
-        if (x.kind == 'Empty') {
-            return x
-        } else {
-            let result = cons<b>().f(f.f(x.head))
-            if (result.kind == 'Cons') {
-                result.tail = map_List(f).f(x.tail)
-            }
-
-            return result
+let map_List = <a, b>(f: Fun<a, b>): Fun<List<a>, List<b>> => Fun(x => {
+    if (x.kind == 'Empty') {
+        return x
+    } else {
+        // TODO: Need to turn this into a one liner!
+        let result = cons<b>().f(f.f(x.head))
+        if (result.kind == 'Cons') {
+            result.tail = map_List(f).f(x.tail)
         }
-    })
+
+        return result
+    }
+})
 
 let firstItem = cons<number>().f(123)
 if (firstItem.kind == 'Cons') {
